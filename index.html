@@ -11,46 +11,51 @@
     color: #fff;
     font-family: sans-serif;
     display: flex;
-    flex-direction: column;
-    height: 100vh;
     justify-content: center;
     align-items: center;
+    height: 100vh;
+    overflow: hidden;
   }
   img {
     max-width: 90vw;
-    max-height: 70vh;
-    margin-bottom: 1em;
+    max-height: 90vh;
     border: 3px solid #fff;
+    border-radius: 8px;
   }
   button {
-    font-size: 1.5em;
-    margin: 0 1em;
-    padding: 0.5em 1.5em;
+    position: fixed;
+    bottom: 20px;
+    font-size: 3em;
+    padding: 0.1em 0.3em;
     cursor: pointer;
     border-radius: 5px;
     border: none;
-    background: #222;
+    background: rgba(30,30,30,0.8);
     color: #fff;
     user-select: none;
+    transition: background 0.3s;
+    z-index: 1000;
   }
   button:disabled {
-    opacity: 0.4;
+    opacity: 0.3;
     cursor: default;
   }
-  #nav {
-    display: flex;
-    justify-content: center;
-    width: 100%;
+  button:hover:not(:disabled) {
+    background: rgba(70,70,70,0.9);
+  }
+  #backBtn {
+    left: 20px;
+  }
+  #forwardBtn {
+    right: 20px;
   }
 </style>
 </head>
 <body>
 
 <img id="mainImage" src="" alt="Random Image" />
-<div id="nav">
-  <button id="backBtn" disabled>&larr; Back</button>
-  <button id="forwardBtn" disabled>Forward &rarr;</button>
-</div>
+<button id="backBtn" disabled aria-label="Previous image">&lt;</button>
+<button id="forwardBtn" disabled aria-label="Next image">&gt;</button>
 
 <script>
   let links = [];
@@ -64,35 +69,30 @@
   const backBtn = document.getElementById('backBtn');
   const forwardBtn = document.getElementById('forwardBtn');
 
-  // Preload function caches images by creating Image objects
   function preloadImage(url) {
     const img = new Image();
     img.src = url;
   }
 
-  // Update buttons enabled/disabled
   function updateButtons() {
     backBtn.disabled = historyStack.length === 0;
     forwardBtn.disabled = (currentIndex >= links.length - 1);
   }
 
-  // Show image at given index
   function showImage(index) {
     currentIndex = index;
     imgElement.src = links[currentIndex];
     imgElement.alt = `Image ${currentIndex + 1} of ${links.length}`;
     updateButtons();
 
-    // Preload next 3 images if any
     for(let i = currentIndex + 1; i <= currentIndex + maxPreload && i < links.length; i++) {
       preloadImage(links[i]);
     }
   }
 
-  // Back button click handler
   backBtn.addEventListener('click', () => {
     if (historyStack.length > 0) {
-      forwardStack.unshift(currentIndex); // save current index in forward stack
+      forwardStack.unshift(currentIndex);
       if (forwardStack.length > maxPreload) forwardStack.pop();
 
       const prevIndex = historyStack.pop();
@@ -100,15 +100,12 @@
     }
   });
 
-  // Forward button click handler
   forwardBtn.addEventListener('click', () => {
     if (currentIndex < links.length - 1) {
-      // Save current index in history stack
       historyStack.push(currentIndex);
       if (historyStack.length > maxHistory) historyStack.shift();
 
       let nextIndex;
-      // If user went back before and forwardStack has entries, pop from forwardStack first
       if (forwardStack.length > 0) {
         nextIndex = forwardStack.shift();
       } else {
@@ -119,7 +116,6 @@
     }
   });
 
-  // Load links.txt and start
   fetch('links.txt')
     .then(response => response.text())
     .then(text => {
@@ -130,7 +126,6 @@
         backBtn.disabled = true;
         return;
       }
-      // Show a random image on start
       currentIndex = Math.floor(Math.random() * links.length);
       showImage(currentIndex);
     })
