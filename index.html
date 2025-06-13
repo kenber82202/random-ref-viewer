@@ -54,7 +54,7 @@
   #forwardBtn {
     right: 20px;
   }
-    button {
+  button {
     touch-action: manipulation;
   }
 </style>
@@ -123,6 +123,15 @@
       if (historyStack.length > maxHistory) historyStack.shift();
       const nextIndex = forwardStack.shift();
       showImage(nextIndex);
+    }
+  });
+
+  // NEW: handle keyboard navigation
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowLeft') {
+      backBtn.click();
+    } else if (event.key === 'ArrowRight') {
+      forwardBtn.click();
     }
   });
 
