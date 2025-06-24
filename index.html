@@ -148,8 +148,6 @@
       currentIndex = Math.floor(Math.random() * links.length);
       showImage(currentIndex);
     })
-    console.log("Total links loaded:", links.length);
-    console.log(links.slice(0, 10));  // show first 10 links for sanity check
     .catch(err => {
       imgElement.alt = "Failed to load links.txt";
       console.error(err);
